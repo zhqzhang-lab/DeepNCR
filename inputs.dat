@@ -1,0 +1,5 @@
+1gpn samples/1gpn/1gpn_protein_atom_noHETATM.pdbqt samples/1gpn/decoys
+1syi samples/1syi/1syi_protein_atom_noHETATM.pdbqt samples/1syi/decoys
+2vw5 samples/2vw5/2vw5_protein_atom_noHETATM.pdbqt samples/2vw5/decoys
+3n86 samples/3n86/3n86_protein_atom_noHETATM.pdbqt samples/3n86/decoys
+3aru samples/3aru/3aru_protein_atom_noHETATM.pdbqt samples/3aru/decoys
