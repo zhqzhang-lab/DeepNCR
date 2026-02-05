@@ -1,10 +1,5 @@
 # Native Contact Ratio as a Receptor-Aware Topological Metric for Molecular Docking
 
-好嘞，我帮你直接整理成**可直接粘到 `README.md` 里的 Markdown**，结构清晰、步骤标准，偏科研/代码仓库风格 👍
-
----
-
-````markdown
 # DeepNCR Pipeline
 
 This repository provides a complete pipeline for **pose optimization**, **docking score prediction**, and **model retraining** using DeepNCR.
