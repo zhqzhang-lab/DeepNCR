@@ -1,10 +1,7 @@
-![fig1-0204](https://github.com/user-attachments/assets/5ac2c293-6bf1-4e99-8506-819e70734c75)# DeepNCR： Native Contact Ratio as a Receptor-Aware Topological Metric for Molecular Docking
+# DeepNCR： Native Contact Ratio as a Receptor-Aware Topological Metric for Molecular Docking
 
+![fig1-0204](https://github.com/user-attachments/assets/5ac2c293-6bf1-4e99-8506-819e70734c75)
 This repository provides a complete pipeline for **pose optimization**, **docking score prediction**, and **model retraining** using DeepNCR.
-
-![fig1-0204](https://github.com/user-attachments/assets/e455bebd-8dac-47cd-abd0-b04771fa0bd6)
-
-
 
 ## 1. Pose Optimization Using Our Method
 
