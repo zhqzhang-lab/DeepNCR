@@ -69,6 +69,23 @@ python train.py
 This will retrain the DeepNCR model using the newly generated features.
 
 
+## 🛠 Requirements
+
+Ensure you have the following dependencies installed:
+
+* torch>=2.0.0
+* torch-geometric==2.6.1
+* biopython==1.85
+* rdkit==2024.3.4
+* vina==1.2.7
+* numpy==1.26.4
+* pandas==2.2.3
+* scipy==1.13.1
+* scikit-learn==1.5.2
+* joblib==1.4.2
+* tqdm==4.67.1
+
+
 ## Notes
 
 * Please ensure all paths are correctly configured before running each step.
