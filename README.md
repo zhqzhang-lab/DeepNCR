@@ -1,10 +1,7 @@
-# Native Contact Ratio as a Receptor-Aware Topological Metric for Molecular Docking
-
-# DeepNCR Pipeline
+# DeepNCR： Native Contact Ratio as a Receptor-Aware Topological Metric for Molecular Docking
 
 This repository provides a complete pipeline for **pose optimization**, **docking score prediction**, and **model retraining** using DeepNCR.
 
----
 
 ## 1. Pose Optimization Using Our Method
 
@@ -17,7 +14,6 @@ bash run_pose_optimization.sh inputs.dat
 * `inputs.dat` specifies the protein–ligand pairs to be optimized.
 * The optimized poses will be generated according to the configuration defined in the script.
 
----
 
 ## 2. Scoring Optimized Poses with the Trained Model
 
@@ -37,7 +33,6 @@ python scoring/scripts/docking_score_quick.py
 
 The output will contain the predicted docking scores for each pose.
 
----
 
 ## 3. Retraining DeepNCR
 
@@ -73,23 +68,8 @@ python train.py
 
 This will retrain the DeepNCR model using the newly generated features.
 
----
 
 ## Notes
 
 * Please ensure all paths are correctly configured before running each step.
 * Python version and required dependencies should be installed as specified in the environment setup.
-
-```
-
----
-
-如果你愿意，下一步我也可以帮你加上：
-
-- 📦 **Environment / Dependencies**
-- 📁 **Directory Structure**
-- 📊 **Example Output**
-- 📖 **Citation / Reference**
-
-直接说你打算投会议还是期刊，我可以按标准帮你再润一版 README。
-```
