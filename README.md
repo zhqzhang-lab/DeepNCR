@@ -70,9 +70,10 @@ This will retrain the DeepNCR model using the newly generated features.
 
 
 ## 🛠 Requirements
+Pretrained model weights can be downloaded from:
+https://zenodo.org/records/18489973?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjFmM2RhYzU2LWM2MWUtNDk4YS05NmMzLTJhZmY3NDFjZjkzYSIsImRhdGEiOnt9LCJyYW5kb20iOiI2OWE1Y2UyZjVlZDJiN2FlNmRhYThiNTY5NmVlY2ZmYiJ9.spXy39_mSKoYHLU6xHV7CwGQi1NMy7NwY7L3nYGS_2PStkXeYYqUGaixacgqj-reGQJj7xujTcie8XdSkHDMng
 
 Ensure you have the following dependencies installed:
-
 * torch>=2.0.0
 * torch-geometric==2.6.1
 * biopython==1.85
