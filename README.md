@@ -1,2 +1,2 @@
-# DeepNCR
-Native Contact Ratio as a Receptor-Aware Topological Metric for Molecular Docking
+# Native Contact Ratio as a Receptor-Aware Topological Metric for Molecular Docking
+
