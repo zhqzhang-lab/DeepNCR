@@ -1,0 +1,20 @@
+name: deepncr_env
+channels:
+  - pytorch
+  - pyg
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9  # 请根据您实际使用的 Python 版本进行修改
+  - pytorch>=2.0.0
+  - pyg=2.6.1
+  - biopython=1.85
+  - rdkit=2024.3.4
+  - numpy=1.26.4
+  - pandas=2.2.3
+  - scipy=1.13.1
+  - scikit-learn=1.5.2
+  - joblib=1.4.2
+  - tqdm=4.67.1
+  - pip:
+    - vina==1.2.7
