@@ -65,7 +65,7 @@ python merge_pkl.py
 Finally, modify the data paths if necessary and run the training script:
 
 ```bash
-python train.py
+ python train.py -train_file $train_file -valid_file $valid_file
 ```
 
 This will retrain the DeepNCR model using the newly generated features.
