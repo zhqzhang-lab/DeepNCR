@@ -35,8 +35,8 @@ def perform_scoring(ligand: Ligand,
     
     # 2. Extract Predictions (Vectorized)
     # Assumes scoring.pred_rmsd is a numpy array of shape (N, 2)
-    # Column 0: ratio_6_int, Column 1: RMSD
-    ratio_6_int = scoring.pred_rmsd[:, 0].reshape(-1, 1)
+    # Column 0: ncr_score, Column 1: RMSD
+    ncr_score = scoring.pred_rmsd[:, 0].reshape(-1, 1)
     rmsd_score  = scoring.pred_rmsd[:, 1].reshape(-1, 1)
 
     # 3. Extract Vina Score
@@ -48,18 +48,18 @@ def perform_scoring(ligand: Ligand,
     
     # 4. Compute Combined Score
     # Hybrid scoring: 50% DeepRMSD + 50% Vina Inter Energy
-    ncr_vina = 0.5 * inter_vina - 3.5 * ratio_6_int
+    ncr_vina = 0.5 * inter_vina - 3.5 * ncr_score
 
     # 5. Format Data for Output
     # Concatenate all metrics horizontally
-    data_block = np.hstack([rmsd_score, inter_vina, ncr_vina, ratio_6_int])
+    data_block = np.hstack([rmsd_score, inter_vina, ncr_vina, ncr_score])
     data_block = np.round(data_block, 5)
     
     # Create DataFrame
     df = pd.DataFrame(
         data_block, 
         index=ligand.poses_file_names, 
-        columns=["pred_rmsd", "inter_vina", "ncr_vina", "ratio_6_int"]
+        columns=["pred_rmsd", "inter_vina", "ncr_vina", "ncr_score"]
     )
     
     # Sort by the combined score (Ascending: lower is better)
