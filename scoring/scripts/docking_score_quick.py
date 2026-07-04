@@ -30,7 +30,7 @@ LABEL_SCALER_PATH = "../../retrain/label_scaler/label_scalers.pkl"
 
 torch.serialization.add_safe_globals([DeepRMSD])
 
-print("Loading DeepRMSD model...")
+print("Loading DeepNCR model...")
 GLOBAL_MODEL = torch.load(MODEL_PATH, map_location=device, weights_only=False)
 GLOBAL_MODEL.eval()
 
