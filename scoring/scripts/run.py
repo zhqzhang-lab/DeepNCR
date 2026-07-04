@@ -77,7 +77,7 @@ def perform_scoring(ligand: Ligand,
 
 if __name__ == "__main__":
     description = """
-    Score protein-ligand binding poses using DeepRMSD + Vina.
+    Score protein-ligand binding poses using DeepNCR.
     """
     parser = argparse.ArgumentParser(description=description, formatter_class=RawDescriptionHelpFormatter)
     
