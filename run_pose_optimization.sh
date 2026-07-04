@@ -39,7 +39,7 @@ do
     RECEPTOR_PATH=${STR[1]}
     POSES_PATH=${STR[2]}
 
-    OUTPUT_PATH="Posebusters_opt_output_2/${CODE}"
+    OUTPUT_PATH="opt_output/${CODE}"
 
     # 3. Check for Existing Output (Resume Capability)
     if [ -d "$OUTPUT_PATH" ]; then
