@@ -7,17 +7,21 @@ This repository provides a complete pipeline for **pose optimization**, **dockin
 
 Pretrained model weights can be downloaded from [here](https://zenodo.org/records/18489973?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjFmM2RhYzU2LWM2MWUtNDk4YS05NmMzLTJhZmY3NDFjZjkzYSIsImRhdGEiOnt9LCJyYW5kb20iOiI2OWE1Y2UyZjVlZDJiN2FlNmRhYThiNTY5NmVlY2ZmYiJ9.spXy39_mSKoYHLU6xHV7CwGQi1NMy7NwY7L3nYGS_2PStkXeYYqUGaixacgqj-reGQJj7xujTcie8XdSkHDMng).
 
-To perform pose optimization with our method, run the following command from the **root directory**:
+Before running pose optimization, make sure Open Babel is installed:
 
-# install openbabel (important!)
+```bash
 conda install -c conda-forge openbabel
+```
+
+Then, run the following command from the **root directory**:
 
 ```bash
 bash run_pose_optimization.sh inputs.dat
-````
+```
 
 * `inputs.dat` specifies the protein–ligand pairs to be optimized.
 * The optimized poses will be generated according to the configuration defined in the script.
+
 
 
 ## 2. Scoring Optimized Poses with the Trained Model
