@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import sys
+START = int(sys.argv[1])
+END   = int(sys.argv[2])
 
 import os
 import numpy as np
@@ -13,61 +16,85 @@ from parse_receptor import Receptor
 from model import DeepRMSD
 
 
-# Set device
+# ============================================
+# 1) 只加载一次模型（关闭梯度）
+# ============================================
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# ============================================
-# 1) Model & Scaler Paths
-# ============================================
-MODEL_PATH = "../../retrain/Model_ROOT/multivariable2_rmsd_ratio_buchong_2.pth"
-FEAT_SCALER_PATH = "../../retrain/feat_scaler/feat_scaler_multivariable2_buchong_2.pkl"
-LABEL_SCALER_PATH = "../../retrain/label_scaler/label_scalers_multivariable2_rmsd_ratio_buchong_2.pkl"
+MODEL_PATH = "../../retrain/Model_ROOT/multivariable2_rmsd_ratio_best.pth"
+FEAT_SCALER_PATH = "../../retrain/feat_scaler/feat_scaler.pkl"
+LABEL_SCALER_PATH = "../../retrain/label_scaler/label_scalers.pkl"
 
-# Fix for torch serialization safety issues in newer versions
 torch.serialization.add_safe_globals([DeepRMSD])
 
-print("⚡ Loading DeepRMSD model (Global)...")
+print("⚡ Loading DeepRMSD model...")
 GLOBAL_MODEL = torch.load(MODEL_PATH, map_location=device, weights_only=False)
 GLOBAL_MODEL.eval()
 
-print("⚡ Loading scalers (Global)...")
 GLOBAL_FEAT_SCALER = joblib.load(FEAT_SCALER_PATH)
 GLOBAL_LABEL_SCALER = joblib.load(LABEL_SCALER_PATH)
 
 
 # ============================================
-# 2) Dataset Configuration
+# 2)  路径 可以修改
 # ============================================
-# TODO: Update these paths to your actual data directories before running
-protein_folder = "/path/to/CASF-2016/coreset_pdbqt/protein_py_sx"
-decoy_folder   = "/path/to/CASF-2016/decoys_docking_pdbqt_py_2"
+POSEBUSTERS_ROOT = (
+    "./dataset/PoseBusters/posebusters_benchmark_set"
+)
 
-output_folder  = "../../scoring/csv_results_other/1204_rmsd_ratio_buchong_2"
-
-os.makedirs(output_folder, exist_ok=True)
-
-protein_files = os.listdir(protein_folder)
-decoy_files   = os.listdir(decoy_folder)
+SAVE_DIR = (
+    "./dataset/PoseBusters/docking_scores_vina"
+)
+os.makedirs(SAVE_DIR, exist_ok=True)
 
 
 # ============================================
-# 3) Scoring Function
+# 3) 评分一个 PoseBusters complex
 # ============================================
-def score_one_target(protein_pdbqt, decoy_pdbqt, out_csv):
+def score_complex(complex_id):
 
-    print(f"\n==============================")
-    print(f"▶ Processing {os.path.basename(protein_pdbqt)}")
-    print("==============================")
+    complex_dir = os.path.join(POSEBUSTERS_ROOT, complex_id)
 
-    # Parse ligand
-    ligand = Ligand(poses_file=decoy_pdbqt)
-    ligand.parse_ligand()
+    protein_path = os.path.join(
+        complex_dir, f"{complex_id}_protein.pdbqt"
+    )
+    ligand_path = os.path.join(
+        complex_dir, f"{complex_id}_decoys.pdbqt"
+    )
 
-    # Parse receptor
-    receptor = Receptor(receptor_fpath=protein_pdbqt)
-    receptor.parse_receptor()
+    out_path = os.path.join(
+        SAVE_DIR, f"{complex_id}_scores.csv"
+    )
 
-    # Initialize ScoringFunction
+    # ---- 断点续算 ----
+    if os.path.exists(out_path):
+        print(f"⏩ Skip {complex_id}, already scored.")
+        return
+
+    if not (os.path.exists(protein_path) and os.path.exists(ligand_path)):
+        print(f"❌ Missing files for {complex_id}")
+        return
+
+    print(f"\n=======================================")
+    print(f"▶ Processing PoseBusters complex: {complex_id}")
+    print(f"=======================================\n")
+
+    # ---------- receptor ----------
+    receptor = Receptor(receptor_fpath=protein_path)
+    try:
+        receptor.parse_receptor()
+    except Exception as e:
+        print(f"❌ Skip {complex_id}, receptor parsing failed: {e}")
+        return
+
+    # ---------- ligand (decoys) ----------
+    ligand = Ligand(poses_file=ligand_path)
+    try:
+        ligand.parse_ligand()
+    except Exception as e:
+        print(f"⚠ Can't parse ligand poses for {complex_id}: {e}")
+        return
+
     scoring = ScoringFunction(
         receptor=receptor,
         ligand=ligand,
@@ -76,52 +103,62 @@ def score_one_target(protein_pdbqt, decoy_pdbqt, out_csv):
         label_scaler_cached=GLOBAL_LABEL_SCALER
     )
 
-    # Generate features and calculate scores
-    scoring.generate_pldist_mtrx()
-    scoring.cal_RMSD()
-    scoring.cal_vina()
+    # ===========================
+    # 推理（无梯度）
+    # ===========================
+    with torch.no_grad():
+        scoring.generate_pldist_mtrx()
+        scoring.cal_RMSD()
+        scoring.cal_vina()
 
-    # Extract multi-variable outputs
-    ratio_6_int = scoring.pred_rmsd[:, 0].reshape(-1, 1)
-    rmsd        = scoring.pred_rmsd[:, 1].reshape(-1, 1)
+        ratio_6_int = scoring.pred_rmsd[:, 0].reshape(-1, 1)
+        rmsd        = scoring.pred_rmsd[:, 1].reshape(-1, 1)
+        inter_vina  = scoring.vina_inter_energy.cpu().numpy().reshape(-1, 1)
+        rmsd_vina   = 0.5 * rmsd + 0.5 * inter_vina
+        ratio_vina  = 0.5 * inter_vina - 3.5 * ratio_6_int
 
-    inter_vina = scoring.vina_inter_energy.cpu().numpy()
-    
-    # Combined scoring strategy
-    rmsd_vina  = 0.5 * rmsd + 0.5 * inter_vina
-
-    # Prepare data for saving
-    value = np.c_[rmsd, inter_vina, rmsd_vina, ratio_6_int]
-    value = np.round(value, 5)
+    # ---------- 组织输出 ----------
+    rows = []
+    N = rmsd.shape[0]
+    for i in range(N):
+        pose_id = f"{complex_id}_{(i+1)}"
+        rows.append([
+            pose_id,
+            float(rmsd[i][0]),
+            float(inter_vina[i][0]),
+            float(rmsd_vina[i][0]),
+            float(ratio_6_int[i][0]),
+            float(ratio_vina[i][0])
+        ])
 
     df = pd.DataFrame(
-        value, 
-        index=ligand.poses_file_names,
-        columns=["pred_rmsd", "inter_vina", "rmsd_vina", "ratio_6_int"]
+        rows,
+        columns=["pose", "pred_rmsd", "inter_vina", "rmsd_vina", "ratio_6_int", "ratio_vina"]
     )
+    df = df.sort_values("ratio_vina", ascending=True)
 
-    # Sort by the combined score
-    df = df.sort_values("rmsd_vina", ascending=True)
-    df.to_csv(out_csv)
-
-    print(f"✔ Saved result to -> {out_csv}")
+    df.to_csv(out_path, index=False)
+    print(f"✔ Saved → {out_path}")
 
 
 # ============================================
-# 4) Main Loop: Iterate over all targets
+# 4) 主函数（支持分片）
 # ============================================
-if __name__ == "__main__":
-    for protein_file in protein_files:
+def main():
+    complexes = sorted(os.listdir(POSEBUSTERS_ROOT))
+    complexes = complexes[START:END]
 
-        protein_id = protein_file.split("_")[0]
-        decoy_file = f"{protein_id}_decoys.pdbqt"
+    total = len(complexes)
+    print(f"🔢 Will process complexes[{START}:{END}], total = {total}")
 
-        if decoy_file not in decoy_files:
-            print(f"⚠ Warning: No decoys found for {protein_id}, skipping...")
+    for idx, complex_id in enumerate(complexes, start=1):
+        complex_dir = os.path.join(POSEBUSTERS_ROOT, complex_id)
+        if not os.path.isdir(complex_dir):
             continue
 
-        rec_path  = os.path.join(protein_folder, protein_file)
-        dec_path  = os.path.join(decoy_folder,  decoy_file)
-        out_csv   = os.path.join(output_folder, f"{protein_id}_docking_score.csv")
+        print(f"\n===== [{idx}/{total}] {complex_id} =====")
+        score_complex(complex_id)
 
-        score_one_target(rec_path, dec_path, out_csv)
+
+if __name__ == "__main__":
+    main()
