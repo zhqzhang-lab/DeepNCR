@@ -1,9 +1,8 @@
+```python
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import sys
-START = int(sys.argv[1])
-END   = int(sys.argv[2])
 
+import sys
 import os
 import numpy as np
 import pandas as pd
@@ -16,8 +15,12 @@ from parse_receptor import Receptor
 from model import DeepRMSD
 
 
+START = int(sys.argv[1])
+END   = int(sys.argv[2])
+
+
 # ============================================
-# 1) 只加载一次模型（关闭梯度）
+# 1) Load model once (no gradient)
 # ============================================
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -27,7 +30,7 @@ LABEL_SCALER_PATH = "../../retrain/label_scaler/label_scalers.pkl"
 
 torch.serialization.add_safe_globals([DeepRMSD])
 
-print("⚡ Loading DeepRMSD model...")
+print("Loading DeepRMSD model...")
 GLOBAL_MODEL = torch.load(MODEL_PATH, map_location=device, weights_only=False)
 GLOBAL_MODEL.eval()
 
@@ -36,20 +39,16 @@ GLOBAL_LABEL_SCALER = joblib.load(LABEL_SCALER_PATH)
 
 
 # ============================================
-# 2)  路径 可以修改
+# 2) Paths (modifiable)
 # ============================================
-POSEBUSTERS_ROOT = (
-    "./dataset/PoseBusters/posebusters_benchmark_set"
-)
+POSEBUSTERS_ROOT = "./dataset/PoseBusters/posebusters_benchmark_set"
 
-SAVE_DIR = (
-    "./dataset/PoseBusters/docking_scores_vina"
-)
+SAVE_DIR = "./dataset/PoseBusters/docking_scores_vina"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 
 # ============================================
-# 3) 评分一个 PoseBusters complex
+# 3) Score one PoseBusters complex
 # ============================================
 def score_complex(complex_id):
 
@@ -66,33 +65,33 @@ def score_complex(complex_id):
         SAVE_DIR, f"{complex_id}_scores.csv"
     )
 
-    # ---- 断点续算 ----
+    # skip if already processed
     if os.path.exists(out_path):
-        print(f"⏩ Skip {complex_id}, already scored.")
+        print(f"Skip {complex_id}, already scored.")
         return
 
     if not (os.path.exists(protein_path) and os.path.exists(ligand_path)):
-        print(f"❌ Missing files for {complex_id}")
+        print(f"Missing files for {complex_id}")
         return
 
-    print(f"\n=======================================")
-    print(f"▶ Processing PoseBusters complex: {complex_id}")
-    print(f"=======================================\n")
+    print("\n=======================================")
+    print(f"Processing PoseBusters complex: {complex_id}")
+    print("=======================================\n")
 
-    # ---------- receptor ----------
+    # receptor
     receptor = Receptor(receptor_fpath=protein_path)
     try:
         receptor.parse_receptor()
     except Exception as e:
-        print(f"❌ Skip {complex_id}, receptor parsing failed: {e}")
+        print(f"Skip {complex_id}, receptor parsing failed: {e}")
         return
 
-    # ---------- ligand (decoys) ----------
+    # ligand (decoys)
     ligand = Ligand(poses_file=ligand_path)
     try:
         ligand.parse_ligand()
     except Exception as e:
-        print(f"⚠ Can't parse ligand poses for {complex_id}: {e}")
+        print(f"Cannot parse ligand poses for {complex_id}: {e}")
         return
 
     scoring = ScoringFunction(
@@ -103,9 +102,7 @@ def score_complex(complex_id):
         label_scaler_cached=GLOBAL_LABEL_SCALER
     )
 
-    # ===========================
-    # 推理（无梯度）
-    # ===========================
+    # inference (no gradient)
     with torch.no_grad():
         scoring.generate_pldist_mtrx()
         scoring.cal_RMSD()
@@ -117,7 +114,7 @@ def score_complex(complex_id):
         rmsd_vina   = 0.5 * rmsd + 0.5 * inter_vina
         ratio_vina  = 0.5 * inter_vina - 3.5 * ratio_6_int
 
-    # ---------- 组织输出 ----------
+    # collect results
     rows = []
     N = rmsd.shape[0]
     for i in range(N):
@@ -133,23 +130,30 @@ def score_complex(complex_id):
 
     df = pd.DataFrame(
         rows,
-        columns=["pose", "pred_rmsd", "inter_vina", "rmsd_vina", "ratio_6_int", "ratio_vina"]
+        columns=[
+            "pose",
+            "pred_rmsd",
+            "inter_vina",
+            "rmsd_vina",
+            "ratio_6_int",
+            "ratio_vina"
+        ]
     )
     df = df.sort_values("ratio_vina", ascending=True)
 
     df.to_csv(out_path, index=False)
-    print(f"✔ Saved → {out_path}")
+    print(f"Saved -> {out_path}")
 
 
 # ============================================
-# 4) 主函数（支持分片）
+# 4) Main (supports slicing)
 # ============================================
 def main():
     complexes = sorted(os.listdir(POSEBUSTERS_ROOT))
     complexes = complexes[START:END]
 
     total = len(complexes)
-    print(f"🔢 Will process complexes[{START}:{END}], total = {total}")
+    print(f"Will process complexes[{START}:{END}], total = {total}")
 
     for idx, complex_id in enumerate(complexes, start=1):
         complex_dir = os.path.join(POSEBUSTERS_ROOT, complex_id)
@@ -162,3 +166,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
