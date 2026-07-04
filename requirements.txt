@@ -1,11 +1,51 @@
-torch>=2.0.0
+# Core scientific stack
+
+numpy==1.26.4
+scipy==1.13.1
+pandas==2.2.3
+scikit-learn==1.5.2
+
+# Deep learning
+
+torch==2.6.0
+torchvision==0.20.0
+torchaudio==2.5.0
+
+# Graph learning
+
 torch-geometric==2.6.1
-biopython==1.85
+
+# Chemistry / docking
+
 rdkit==2024.3.4
 vina==1.2.7
-numpy==1.26.4
-pandas==2.2.3
-scipy==1.13.1
-scikit-learn==1.5.2
-joblib==1.4.2
+meeko==0.7.1
+spyrmsd==0.8.0
+biopython==1.85
+
+# ML / utilities
+
+xgboost==2.1.4
+shap==0.48.0
+
+# Transformers / models
+
+transformers==4.49.0
+tokenizers==0.21.0
+
+# Data processing
+
+pyarrow==19.0.0
+polars==1.33.1
+
+# Visualization (optional)
+
+matplotlib==3.9.4
+seaborn==0.13.2
+bokeh==3.4.3
+
+# Other useful tools
+
 tqdm==4.67.1
+requests==2.32.5
+PyYAML==6.0.2
