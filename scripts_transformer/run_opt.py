@@ -18,9 +18,9 @@ from utils import save_data, save_results, save_final_lig_cnfr, output_ligand_tr
 # 1) Global Configuration & Resources
 # ======================================================
 # TODO: Update these paths to your actual model/scaler locations
-MODEL_PATH = "./retrain/Model_ROOT/multivariable2_rmsd_ratio_buchong_2.pth"
-FEAT_SCALER_PATH = "./retrain/feat_scaler/feat_scaler_multivariable2_buchong_2.pkl"
-LABEL_SCALER_PATH = "./retrain/label_scaler/label_scalers_multivariable2_rmsd_ratio_buchong_2.pkl"
+MODEL_PATH = "../retrain/Model_ROOT/multivariable2_rmsd_ratio_buchong_2.pth"
+FEAT_SCALER_PATH = "../retrain/feat_scaler/feat_scaler_multivariable2_buchong_2.pkl"
+LABEL_SCALER_PATH = "../retrain/label_scaler/label_scalers_multivariable2_rmsd_ratio_buchong_2.pkl"
 
 # Global cache to prevent reloading large files
 GLOBAL_MODEL = None
