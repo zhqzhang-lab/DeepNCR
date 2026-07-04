@@ -9,6 +9,9 @@ Pretrained model weights can be downloaded from [here](https://zenodo.org/record
 
 To perform pose optimization with our method, run the following command from the **root directory**:
 
+# install openbabel (important!)
+conda install -c conda-forge openbabel
+
 ```bash
 bash run_pose_optimization.sh inputs.dat
 ````
