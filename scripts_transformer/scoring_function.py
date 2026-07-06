@@ -168,9 +168,6 @@ class ScoringFunction(object):
     def cal_RMSD(self):
         dist_nm = self.dist / 10
 
-        # ============================================
-        # 1) 生成 r6 / r1 特征
-        # ============================================
         dist_nm_1 = (dist_nm <= self.pre_cut) * self.pre_cut
         dist_nm_2 = dist_nm * (dist_nm > self.pre_cut) * (dist_nm < self.cutoff)
 
