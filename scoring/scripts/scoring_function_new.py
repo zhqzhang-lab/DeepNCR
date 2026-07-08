@@ -317,7 +317,7 @@ class ScoringFunction(object):
 
 class VinaScoreCore(object):
     """
-    Vectorized implementation of the AutoDock Vina scoring function terms.
+    Vectorized implementation of the Vina scoring function terms.
     """
     def __init__(self, dist_matrix, rec_lig_is_hydrophobic, rec_lig_is_hbond, rec_lig_atom_vdw_sum):
         """
