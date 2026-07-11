@@ -41,9 +41,9 @@ GLOBAL_LABEL_SCALER = joblib.load(LABEL_SCALER_PATH)
 # ============================================
 # 2) Paths (modifiable)
 # ============================================
-POSEBUSTERS_ROOT = "./dataset/PoseBusters/posebusters_benchmark_set"
+POSEBUSTERS_ROOT = "./sample"
 
-SAVE_DIR = "./dataset/PoseBusters/docking_scores_vina"
+SAVE_DIR = "./sample/result"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 
